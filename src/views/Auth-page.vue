@@ -1,6 +1,6 @@
 <template>
   <div class="auth-page">
-    <LoginForm
+    <readerLogin
       v-if="currentForm === 'login'"
       :switch-to-register="switchToRegister"
       :switch-to-resetpassword="switchToResetPassword"
@@ -11,7 +11,7 @@
       :switch-to-login="switchToLogin"
       :on-submit="handleResetPassword"
     />
-    <RegisterForm
+    <readerRegister
       v-else
       :switch-to-login="switchToLogin"
       :on-submit="handleRegister"
@@ -21,8 +21,8 @@
 
 <script setup>
 import { ref } from 'vue';
-import LoginForm from '@/components/LoginForm.vue';
-import RegisterForm from '@/components/RegisterForm.vue';
+import readerLogin from '@/components/ReaderLogin.vue';
+import readerRegister from '@/components/ReaderRegister.vue';
 import ResetPassword from '@/components/ResetPassword.vue';
 
 const currentForm = ref('login');
