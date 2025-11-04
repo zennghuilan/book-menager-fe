@@ -1,6 +1,7 @@
 // router/index.js
 import { createRouter, createWebHistory } from 'vue-router';
-import AuthPage from '@/views/AuthPage.vue';
+import AuthPage from '@/views/Auth-page.vue';
+import MasterAuthPage from '@/views/MasterAuth-page.vue';
 import OptionPage from '@/views/Option-page.vue'
 import BorrowBook from '@/components/BorrowBook.vue';
 import RuturnBook from '@/components/RuturnBook.vue';
@@ -11,6 +12,11 @@ const routes = [
     path: '/auth',
     name: 'Auth',
     component: AuthPage
+  },
+    {
+    path: '/masterauth',
+    name: 'MasterAuthPage',
+    component: MasterAuthPage
   },
   {
     path: '/option',
