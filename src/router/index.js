@@ -1,41 +1,43 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import Login from '../views/userLogin.vue'
-import UserRegister from '@/components/UserRegister.vue'
-import ResetPassword from '@/components/ResetPassword.vue'
-import BorrowBook from '../components/BorrowBook.vue'
-import RuturnBook from '@/components/RuturnBook.vue'
+// router/index.js
+import { createRouter, createWebHistory } from 'vue-router';
+import AuthPage from '@/views/AuthPage.vue';
+import OptionPage from '@/views/Option-page.vue'
+import BorrowBook from '@/components/BorrowBook.vue';
+import RuturnBook from '@/components/RuturnBook.vue';
+import SearchPage from '@/views/Search-page.vue';
 
 const routes = [
   {
-    path: '/login',
-    name: 'Login',
-    component: Login,
+    path: '/auth',
+    name: 'Auth',
+    component: AuthPage
   },
   {
-    path: '/register',
-    name: 'Register',
-    component: UserRegister,
+    path: '/option',
+    name: 'Option',
+    component: OptionPage
   },
-  {
-    path: '/reset-password',
-    name: 'ResetPassword',
-    component: ResetPassword,
-  },
-  {
-    path: '/borrow-book',
+    {
+    path: '/borrowbook',
     name: 'BorrowBook',
-    component: BorrowBook,
+    component: BorrowBook
   },
   {
-    path: '/return-book',
-    name: 'RuturnBook',
-    component: RuturnBook,
+    path: '/ruturn',
+    name: 'Ruturn',
+    component: RuturnBook
   },
-]
+
+  {
+    path: '/search',
+    name: 'Search',
+    component: SearchPage
+  }
+];
 
 const router = createRouter({
-  history: createWebHistory(),
-  routes,
-})
+  history: createWebHistory('/'),
+  routes
+});
 
-export default router
+export default router;

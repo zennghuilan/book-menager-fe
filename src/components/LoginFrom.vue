@@ -1,45 +1,34 @@
 <template>
   <a-form
     :model="formState"
-    name="resetpassword"
-    class="resetpassword-form"
+    name="login"
+    class="login-form"
     @finish="onFinish"
     @finishFailed="onFinishFailed"
   >
-    <!-- 表单内容保持不变 -->
+
     <a-form-item
-      label="用户名"
-      name="username"
-      :rules="[{ required: true, message: '请输入用户名' }]"
+      label="读者证号"
+      name="usernumber"
+      :rules="[{ required: true, message: '请输入读者证号' }]"
     >
       <a-input
-        v-model:value="formState.username"
-        placeholder="请输入用户名"
+        v-model:value="formState.usernumber"
+        placeholder="请输入读者证号"
       />
     </a-form-item>
 
     <a-form-item
-      label="邮箱"
-      name="email"
-      :rules="[{ required: true, message: '请输入邮箱' }]"
-    >
-      <a-input
-        v-model:value="formState.email"
-        placeholder="请输入邮箱"
-      />
-    </a-form-item>
-
-    <a-form-item
-      label="重置密码"
+      label="密码"
       name="password"
       :rules="[
-        { required: true, message: '请输入重置后密码' },
+        { required: true, message: '请输入密码' },
         { min: 6, message: '密码至少6位' }
       ]"
     >
       <a-input-password
         v-model:value="formState.password"
-        placeholder="请输入重置后密码"
+        placeholder="请输入密码"
       />
     </a-form-item>
 
@@ -48,14 +37,15 @@
         type="primary"
         html-type="submit"
         :disabled="disabled"
-        class="resetpassword-form-button"
+        class="login-form-button"
       >
-        注册
+        登录
       </a-button>
     </a-form-item>
 
     <a-form-item>
-      <a @click="switchToLogin">已重置密码？点击登录</a>
+      <a @click="switchToRegister">注册一个新用户</a>
+      <a @click="switchToResetpassword">重置密码</a>
     </a-form-item>
   </a-form>
 </template>
@@ -63,8 +53,9 @@
 <script setup>
 import { reactive, computed } from 'vue';
 
+// 通过 props 接收切换函数
 const props = defineProps({
-  switchToLogin: {
+  switchToRegister: {
     type: Function,
     required: true
   },
@@ -76,12 +67,11 @@ const props = defineProps({
 
 const formState = reactive({
   username: '',
-  email: '',
   password: ''
 });
 
 const disabled = computed(() => {
-  return !(formState.username && formState.email && formState.password);
+  return !(formState.usernumber && formState.password);
 });
 
 const onFinish = (values) => {
@@ -89,17 +79,17 @@ const onFinish = (values) => {
 };
 
 const onFinishFailed = (errorInfo) => {
-  console.log('重置密码失败:', errorInfo);
+  console.log('登录失败:', errorInfo);
 };
 </script>
 
 <style scoped>
-.register-form {
+.login-form {
   max-width: 400px;
   margin: 0 auto;
 }
 
-.register-form-button {
+.login-form-button {
   width: 100%;
 }
 </style>

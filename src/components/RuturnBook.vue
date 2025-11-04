@@ -23,6 +23,5 @@ const handleRuturn = () => {
     return;
   }
   message.success(`成功归还《${bookName.value}》`);
-  // 这里可以添加更多逻辑
 };
 </script>

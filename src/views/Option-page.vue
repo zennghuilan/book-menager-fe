@@ -1,4 +1,3 @@
-<!-- 原来的导航菜单文件 -->
 <template>
   <a-menu
     v-model:selectedKeys="current"
@@ -6,17 +5,16 @@
     :items="items"
     @click="handleMenuClick"
   />
-  <router-view></router-view> <!-- 添加这行显示路由内容 -->
+  <router-view/>
 </template>
 
 <script setup>
 import { h, ref } from 'vue';
-import { useRouter } from 'vue-router'; // 导入路由
+import { useRouter } from 'vue-router';
 import { MailOutlined, SettingOutlined } from '@ant-design/icons-vue';
 
 const router = useRouter();
 const current = ref(['mail']);
-
 const items = ref([
   {
     key: 'profile',
@@ -51,10 +49,20 @@ const items = ref([
     ],
   },
 ]);
+
 const handleMenuClick = ({ key }) => {
   if (key === 'borrow') {
     router.push('/borrow');
   }
-  // 可以添加其他菜单项的处理
+  if (key === 'return') {
+    router.push('/return');
+  }
+  if (key === 'search') {
+    router.push('/search');
+  }
+  // 建议也加上个人主页的路由
+  if (key === 'profile') {
+    router.push('/profile');
+  }
 };
 </script>

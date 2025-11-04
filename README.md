@@ -1,44 +1,72 @@
-# book_manager
+# 总体需求和项目目标
+1. 总体目标:为方便提醒读者还书和让读者快速找到需要的书，所以开发该网站。
+2. 打造智能便携的能统一管理图书借阅的智能平台。
 
-This template should help get you started developing with Vue 3 in Vite.
 
-## Recommended IDE Setup
+# 需求汇总
+1. 用户的登录
+2. 图书管理员的登录
+3. 密码重置（我现在的想法是用户输入邮箱，生成随机的验证码并发送）
+4. 网站主页介绍信息的存储和修改
+5. 注册账号（这里只有用户可以自行注册，如果图书管理员要注册的话要让已经存在的图书管理员进行审核）
+6. 用户成功登录后可以选择的功能有:   
+a. 查找输入的图书对应的具体信息（包括位置的索引，作者以及是否可以被借阅 可以用返回一个bool值的形式）
+b. 在个人的主页中看到自己已经借阅的书籍以及到期时间（从借阅日期起+60天）
+7. 图书管理员成功登录后可以选择的功能有  
+a. 查找输入的读者姓名的所有个人信息
+b. 如果用户在借书期间有不当行为，可以有权限可以将该用户的账号的借书功能进行冻结（即为无法进行借阅），但是依然可以登陆账号
+c. 对图书的信息进行修改
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
 
-## Recommended Browser Setup
+# 后端技术架构
+- 数据库:使用postgreSQL
+- 后端框架:使用Django
+- 接口设计:使用RESTful API
+- 安全性:使用JWT进行身份验证
+- 部署:使用Docker作为容器
+- 文档与接口测试:使用ApiPost
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd) 
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
 
-## Customize configuration
+# 数据库设计
+### 用户表
+- 读者姓名
+- 读者证号
+- 密码
+- 邮箱 
+- 借阅图书名称以及借阅日期
+### 图书管理员表
+- 姓名
+- 邮箱
+- 申请原因
+### 图书表  
+- 书籍名称 
+- 位置索引
+- 是否可以被借阅
+- 被谁借阅了(如果被借走了就显示读者证的id，如果没有被借那这个字段就是空的)
+- 借阅日期(如果没有被借那这个字段就是空的)
+### 验证码库
+- 重置密码用户对应的邮箱
+- 验证码
+- 失效时间
 
-See [Vite Configuration Reference](https://vite.dev/config/).
 
-## Project Setup
-
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
+# 需求及其对应接口
+### 需求分解  
+1. 登录(读者证+密码)
+2. 注册（只有用户可以直接注册成功，管理员的注册只能进行申请）
+3. 用户注册成功之后系统自动生成读者证号并显示在个人主页
+4. 图书管理员注册后直接将其提交的数据返回到数据库 
+5. 用户信息的修改（个人的主页，只允许修改密码和邮箱）  
+6. 读者在登录后设置“功能选择”“个人主页”2个选项   
+（“功能选择”里再设置三个按钮 分别为“借书，还书，查询”，无论是借书还是还书 都要直接输入图书名称选择借阅的读书 然后再更新后台图书库可借阅数量的变化；查询中设置搜索栏要求输入图书名称，获取对应的图书信息库）
+（“个人主页”就可以看到自己的借阅书籍，对应应当归还的时间和读者证号）  
+7. 图书管理员在登录后设置“书籍改动”“查看审核”“管理用户”3个选项 
+（“书籍改动”里图书管理员可以增加图书的种类和数目）  
+（“查看审批”查看对注册图书管理员的申请信息，审批）  
+（“管理用户”同样设置搜索栏查找用户，可看到全部信息，也可以对账号的借书功能进行冻结）
+8. 如果用户借书时间长于60天则会对该用户的账号的借书功能进行冻结（即为无法进行借阅）但是依然可以登陆
+9. 图书管理员还要对申请注册图书管理员进行审核
+10. 在用户注册的时候会随机生成一个用户的读者证号 后续登录就以“读者证+密码”来登录
+11. 查询中设置搜索栏进行图书信息或是用户信息的提取
+12. 邮箱验证码的获取 
+13. 获取介绍的信息，也就是主页

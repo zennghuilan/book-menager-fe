@@ -6,6 +6,7 @@
     @finish="onFinish"
     @finishFailed="onFinishFailed"
   >
+    <!-- 表单内容保持不变 -->
     <a-form-item
       label="用户名"
       name="username"
@@ -52,11 +53,27 @@
         注册
       </a-button>
     </a-form-item>
+
+    <a-form-item>
+      <a @click="switchToLogin">已有账号？点击登录</a>
+    </a-form-item>
   </a-form>
 </template>
 
 <script setup>
 import { reactive, computed } from 'vue';
+
+// 通过 props 接收切换函数
+const props = defineProps({
+  switchToLogin: {
+    type: Function,
+    required: true
+  },
+  onSubmit: {
+    type: Function,
+    required: true
+  }
+});
 
 const formState = reactive({
   username: '',
@@ -69,7 +86,7 @@ const disabled = computed(() => {
 });
 
 const onFinish = (values) => {
-  console.log('注册成功:', values);
+  props.onSubmit(values);
 };
 
 const onFinishFailed = (errorInfo) => {
@@ -80,6 +97,7 @@ const onFinishFailed = (errorInfo) => {
 <style scoped>
 .register-form {
   max-width: 400px;
+  margin: 0 auto;
 }
 
 .register-form-button {
