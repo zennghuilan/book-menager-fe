@@ -14,7 +14,7 @@ import { ref } from 'vue';
 import MasterLogin from '@/components/MasterLogin.vue';
 import MasterRegister from '@/components/MasterRegister.vue';
 
-const currentForm = ref('reset'); // 默认显示重置密码页面
+const currentForm = ref('register'); // 默认注册页面
 
 const handleRegister = (formData) => {
     console.log('注册数据:', formData);
