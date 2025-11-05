@@ -1,6 +1,5 @@
 <template>
 <div class="search-page">
-    <!-- 搜索框 -->
     <div class="search-box">
         <a-input-search
         v-model:value="searchValue"
@@ -19,6 +18,7 @@
         <h3>{{book.title}}</h3>
         <p class="author">{{book.author}}</p>
         <p class="reader">{{book.reader}}</p>
+        <p class="location">{{book.location}}</p>
         </a-card>
     </div>
 
@@ -32,24 +32,17 @@
 import { ref } from "vue"
 import { message } from "ant-design-vue"
 import search from "../service/search"
-
-// 响应式
 const searchValue = ref('')//为什么这里用的是value就会报错显示获取不到这个值
 const searchResults = ref([])
 const hasSearched = ref(false)
 const token = localStorage.getItem("token")
 
-// 基于第一个函数的补充版本
-const onSearch = async (v) => {
-    // 1. 输入验证
-    if (!v.trim()) {
-        message.warning('请输入搜索内容')
-        return
+const onSearch = async (v) => {//先定义出一个异步函数 将用户搜索用的关键词传入函数中
+    if (!v.trim()) {//用！来判断该输入值是否为空的
+        message.warning('请输入搜索内容')//空的话就会显示这个内容
+        return//函数不运行
     }
-
-    // 2. 标记已执行搜索
     hasSearched.value = true
-
     try {
         // 3. 调用搜索API
         const results = await search(v, token)
@@ -61,7 +54,6 @@ const onSearch = async (v) => {
             searchResults.value = []
         }
     } catch (error) {
-        // 5. 错误处理
         console.error('搜索出错:', error)//会在控制台看到出错
         message.error('搜索失败，请稍后重试')//用户端进行对应的反馈
         searchResults.value = []
