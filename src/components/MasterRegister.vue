@@ -49,10 +49,9 @@
         :disabled="disabled"
         class="register-form-button"
       >
-        注册
+        发送申请
       </a-button>
     </a-form-item>
-
     <a-form-item>
       <a @click="switchToLogin">已有账号？点击登录</a>
     </a-form-item>
@@ -78,6 +77,11 @@ const formState = reactive({
   password: ''
 });
 
+// eslint-disable-next-line vue/no-dupe-keys
+const switchToLogin = () => {
+  window.location.href = '/authmaster'
+}
+
 const disabled = computed(() => {
   return !(formState.username && formState.email && formState.password);
 });
@@ -87,7 +91,7 @@ const onFinish = (values) => {
 };
 
 const onFinishFailed = (errorInfo) => {
-  console.log('注册失败:', errorInfo);
+  console.log('申请失败:', errorInfo);
 };
 </script>
 
