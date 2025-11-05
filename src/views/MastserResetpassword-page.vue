@@ -1,12 +1,12 @@
 <template>
-  <div class="masterresetpassword-page">
-    <MasterLogin  Login v-if="currentForm === 'login'" />
+<div class="masterresetpassword-page">
+    <MasterLogin v-if="currentForm === 'login'" />
     <Resetpassword
-      v-else
-      :switch-to-login="switchToLogin"
-      :on-submit="handleResetpassword"
+    v-else
+    :switch-to-login="switchToLogin"
+    :on-submit="handleResetpassword"
     />
-  </div>
+</div>
 </template>
 
 <script setup>
@@ -14,14 +14,15 @@ import { ref } from 'vue';
 import Resetpassword from '@/components/ResetPassword.vue';
 import MasterLogin from '@/components/MasterLogin.vue';
 
-const currentForm = ref('login');
+const currentForm = ref('reset'); //初始量
 
 const handleResetpassword = (formData) => {
-  console.log('重置数据:', formData);
+    console.log('重置数据:', formData);
 };
 
+// 从重置密码切换到登录
 const switchToLogin = () => {
-  currentForm.value = 'login';
+    currentForm.value = 'login';
 };
 </script>
 
