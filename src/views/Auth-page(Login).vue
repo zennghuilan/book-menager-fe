@@ -56,6 +56,17 @@ import { reactive, computed } from 'vue';
 import UserRegisterService from '../service/register'
 
 
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+const goToRegister = () => {
+    router.push('/readerregister')
+}
+
+const goToResetPassword = () => {
+    router.push('/readerreset-password')
+}
 const formState = reactive({
   readerid: '',
   password: ''
@@ -73,7 +84,6 @@ const onFinish = (values) => {
     }
   })
 };
-
 const onFinishFailed = (errorInfo) => {
   console.log('登录失败:', errorInfo);
 };
