@@ -6,7 +6,6 @@
     @finish="onFinish"
     @finishFailed="onFinishFailed"
   >
-    <!-- 表单内容保持不变 -->
     <a-form-item
       label="用户名"
       name="username"
@@ -27,6 +26,17 @@
         v-model:value="formState.email"
         placeholder="请输入邮箱"
       />
+    </a-form-item>
+
+    <a-form-item
+      label="验证码"
+      name="verificationCode"
+      :rules="[{ required: true, message: '请输入验证码' }]"
+    >
+      <a-input-group compact>
+        <a-input v-model:value="formState.verificationCode" style="width: calc(100% - 102px)" />
+        <a-button type="primary">获取验证码</a-button>
+      </a-input-group>
     </a-form-item>
 
     <a-form-item
@@ -55,25 +65,16 @@
     </a-form-item>
 
     <a-form-item>
-      <a @click="switchToLogin">已有账号？点击登录</a>
+        <a @click="$router.push('/register')"></a>
     </a-form-item>
+
+
   </a-form>
 </template>
 
 <script setup>
 import { reactive, computed } from 'vue';
-
-// 通过 props 接收切换函数
-const props = defineProps({
-  switchToLogin: {
-    type: Function,
-    required: true
-  },
-  onSubmit: {
-    type: Function,
-    required: true
-  }
-});
+import UserRegisterService from '../service/register'
 
 const formState = reactive({
   username: '',
@@ -86,7 +87,12 @@ const disabled = computed(() => {
 });
 
 const onFinish = (values) => {
-  props.onSubmit(values);
+  console.log(values)
+  UserRegisterService(values).then(res => {
+    if (res.status === 200) {
+      window.location.href = "/"
+    }
+  })
 };
 
 const onFinishFailed = (errorInfo) => {
@@ -96,8 +102,7 @@ const onFinishFailed = (errorInfo) => {
 
 <style scoped>
 .register-form {
-  max-width: 400px;
-  margin: 0 auto;
+  width:75%;
 }
 
 .register-form-button {

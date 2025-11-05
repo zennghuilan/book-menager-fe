@@ -36,6 +36,7 @@
         html-type="submit"
         :disabled="disabled"
         class="login-form-button"
+        @click="handleLoginClick"
       >
         登录
       </a-button>
@@ -67,6 +68,11 @@ const goToRegister = () => {
 const goToResetPassword = () => {
     router.push('/readerreset-password')
 }
+
+const handleLoginClick = () => {
+    router.push('/option')
+}
+
 const formState = reactive({
   readerid: '',
   password: ''

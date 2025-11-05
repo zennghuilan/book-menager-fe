@@ -48,6 +48,18 @@ const items = ref([
       },
     ],
   },
+  {
+  key: 'exit',
+  label: h(
+      'a',
+      {
+        href: '/option',
+        target: '_blank',
+      },
+      '退出登录',
+    ),
+    title: '退出登录',
+  },
 ]);
 
 const handleMenuClick = ({ key }) => {
@@ -60,9 +72,10 @@ const handleMenuClick = ({ key }) => {
   if (key === 'search') {
     router.push('/search');
   }
-  // 建议也加上个人主页的路由
-  if (key === 'profile') {
-    router.push('/profile');
+  if (key === 'exit') {
+    router.push('/auth');
   }
 };
 </script>
+
+//为什么这个样式如此的诡异 我想要的比较大的。。。。。。。。。
