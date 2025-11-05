@@ -29,7 +29,7 @@ const handleRegister = (formData) => {
 
 // 从注册切换到登录
 const goToLogin = () => {
-    router.push('/AuthPage')
+    router.push('/auth')
 }
 </script>
 
