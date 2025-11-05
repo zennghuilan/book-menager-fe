@@ -14,8 +14,8 @@
 
 <script setup>
 import { ref } from 'vue';
-import ReaderLogin from '@/components/ReaderLogin.vue';
-import ReaderRegister from '@/views/Auth-page(Login).vue';
+import ReaderLogin from '@/components/ReaderRegister.vue';
+import ReaderRegister from '@/components/ReaderRegister.vue';
 import { useRouter } from 'vue-router'
 
 

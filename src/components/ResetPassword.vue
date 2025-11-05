@@ -17,18 +17,6 @@
         placeholder="请输入用户名"
       />
     </a-form-item>
-
-    <a-form-item
-      label="邮箱"
-      name="email"
-      :rules="[{ required: true, message: '请输入邮箱' }]"
-    >
-      <a-input
-        v-model:value="formState.email"
-        placeholder="请输入邮箱"
-      />
-    </a-form-item>
-
     <a-form-item
       label="重置密码"
       name="password"
@@ -43,6 +31,29 @@
       />
     </a-form-item>
 
+    <a-form-item
+      label="邮箱"
+      name="email"
+      :rules="[{ required: true, message: '请输入邮箱' }]"
+    >
+      <a-input
+        v-model:value="formState.email"
+        placeholder="请输入邮箱"
+      />
+    </a-form-item>
+
+    <a-form-item
+      label="验证码"
+      name="verificationCode"
+      :rules="[{ required: true, message: '请输入验证码' }]"
+    >
+      <a-input-group compact>
+        <a-input v-model:value="formState.verificationCode" style="width: calc(100% - 102px)" />
+        <a-button type="primary">获取验证码</a-button>
+      </a-input-group>
+    </a-form-item>
+
+
     <a-form-item>
       <a-button
         type="primary"
@@ -52,10 +63,6 @@
       >
         注册
       </a-button>
-    </a-form-item>
-
-    <a-form-item>
-      <a @click="switchToLogin">已重置密码？点击登录</a>
     </a-form-item>
   </a-form>
 </template>
