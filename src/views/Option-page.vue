@@ -14,7 +14,7 @@ const router = useRouter();
 const current = ref(['mail']);
 const items = ref([
   {
-    key: 'profile',
+    key: 'home',
     label: '个人主页',
     title: '个人主页',
   },
@@ -50,6 +50,9 @@ const items = ref([
   },
 ]);
 const handleMenuClick = ({ key }) => {
+  if (key === 'home') {
+    router.push('/readerhome');
+  }
   if (key === 'borrow') {
     router.push('/borrow');
   }
@@ -65,4 +68,3 @@ const handleMenuClick = ({ key }) => {
 };
 </script>
 
-//为什么这个样式如此的诡异 我想要的比较大的。。。。。。。。。
