@@ -7,24 +7,19 @@
   />
   <router-view/>
 </template>
-
 <script setup>
-import { h, ref } from 'vue';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { MailOutlined, SettingOutlined } from '@ant-design/icons-vue';
-
 const router = useRouter();
 const current = ref(['mail']);
 const items = ref([
   {
     key: 'profile',
-    icon: () => h(MailOutlined),
     label: '个人主页',
     title: '个人主页',
   },
   {
     key: 'functions',
-    icon: () => h(SettingOutlined),
     label: '功能选择',
     title: '功能选择',
     children: [
@@ -49,19 +44,11 @@ const items = ref([
     ],
   },
   {
-  key: 'exit',
-  label: h(
-      'a',
-      {
-        href: '/option',
-        target: '_blank',
-      },
-      '退出登录',
-    ),
+    key: 'exit',
+    label: '退出登录',
     title: '退出登录',
   },
 ]);
-
 const handleMenuClick = ({ key }) => {
   if (key === 'borrow') {
     router.push('/borrow');
@@ -73,7 +60,7 @@ const handleMenuClick = ({ key }) => {
     router.push('/search');
   }
   if (key === 'exit') {
-    router.push('/auth');
+    router.push('/');
   }
 };
 </script>
