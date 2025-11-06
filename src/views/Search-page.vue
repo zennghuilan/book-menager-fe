@@ -1,6 +1,7 @@
 <template>
 <div class="search-page">
     <div class="search-box">
+      <h2>搜索功能</h2>
         <a-input-search
         v-model:value="searchValue"
         placeholder="搜索图书..."
@@ -25,6 +26,10 @@
     <div v-if="searchResults.length === 0 && hasSearched" class="no-results">
         <p>未找到相关图书</p>
     </div>
+
+    <a-form-item>
+    <a @click="$router.push('/option')">返回首页</a>
+    </a-form-item>
 </div>
 </template>
 
