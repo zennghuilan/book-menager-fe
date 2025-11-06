@@ -1,7 +1,8 @@
 <template>
 <div class="search-page">
+  <h2>搜索功能</h2>
     <div class="search-box">
-      <h2>搜索功能</h2>
+
         <a-input-search
         v-model:value="searchValue"
         placeholder="搜索图书..."
