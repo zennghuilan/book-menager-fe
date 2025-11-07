@@ -14,8 +14,9 @@
 
 <script setup>
 import { ref } from 'vue'
-import ReaderDataCard from './ReaderDataCard.vue'
-//用户的数据表
+import ReaderDataCard from '@/components/ReaderDataCard.vue';
+
+
 const cardData = ref([
   {
     readerid: 1,
@@ -53,3 +54,4 @@ const cardData = ref([
   padding: 20px;
 }
 </style>
+
