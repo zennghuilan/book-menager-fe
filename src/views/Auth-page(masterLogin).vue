@@ -12,7 +12,7 @@
       :rules="[{ required: true, message: '请输入用户名' }]"
     >
       <a-input
-        v-model:value="formState.readerid"
+        v-model:value="formState.username"
         placeholder="请输入用户名"
       />
     </a-form-item>
@@ -36,13 +36,14 @@
         html-type="submit"
         :disabled="disabled"
         class="login-form-button"
+        @click="handleLoginClick"
       >
         登录
       </a-button>
     </a-form-item>
 
     <a-form-item>
-      <a @click="goToRegister">没有账号？点击注册</a>
+      <a @click="goToRegister">没有账号？点击申请</a>
     </a-form-item>
 
     <a-form-item>
@@ -61,19 +62,23 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 
 const goToRegister = () => {
-    router.push('/readerregister')
+    router.push('/masterregister')
 }
 
 const goToResetPassword = () => {
-    router.push('/readerreset-password')
+    router.push('/masterresetpassword')
+}
+
+const handleLoginClick = () => {
+    router.push('/masteroption')
 }
 const formState = reactive({
-  readerid: '',
+  username: '',
   password: ''
 });
 
 const disabled = computed(() => {
-  return !(formState.readerid && formState.password);
+  return !(formState.username && formState.password);
 });
 
 const onFinish = (values) => {
