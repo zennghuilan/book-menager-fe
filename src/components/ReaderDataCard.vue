@@ -9,10 +9,10 @@
 
 <script setup>
 defineProps({
-  readerid:String,
+  readerid: String,
   name: String,
-  password:String,
-  email:String,
+  password: String,
+  email: String,
   content: String
 })
 </script>
