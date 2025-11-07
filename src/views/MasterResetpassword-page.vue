@@ -3,12 +3,16 @@
     <MasterLogin v-if="currentForm === 'login'" />
     <Resetpassword v-else :switch-to-login="switchToLogin" :on-submit="handleResetpassword" />
   </div>
+
+  <a-form-item>
+  <a @click="switchToLogin">已重置密码？点击登录</a>
+  </a-form-item>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import Resetpassword from '@/components/ResetPassword.vue'
-import MasterLogin from '@/views/Auth-page(masterLogin).vue'
+import router from '@/router'
 
 const currentForm = ref('reset') //初始量
 
@@ -18,7 +22,7 @@ const handleResetpassword = (formData) => {
 
 // 从重置密码切换到登录
 const switchToLogin = () => {
-  currentForm.value = 'login'
+    router.push('/auth')
 }
 </script>
 
