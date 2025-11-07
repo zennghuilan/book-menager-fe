@@ -1,15 +1,15 @@
 <template>
-<div class="readerregister-page">
+  <a-flex vertical class="readerregister-page">
     <ReaderLogin v-if="currentForm === 'login'" />
     <ReaderRegister
-    v-else
-    :switch-to-login="switchToLogin"
-    :on-submit="handleRegister"
+      v-else
+      :switch-to-login="switchToLogin"
+      :on-submit="handleRegister"
     />
-</div>
     <a-form-item>
       <a @click="goToLogin">已有账号？点击登录</a>
     </a-form-item>
+  </a-flex>
 </template>
 
 <script setup>
@@ -41,6 +41,5 @@ const goToLogin = () => {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #f5f5f5;
 }
 </style>
