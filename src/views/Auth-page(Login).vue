@@ -31,7 +31,6 @@
           html-type="submit"
           :disabled="disabled"
           class="login-form-button"
-          @click="handleLoginClick"
         >
           登录
         </a-button>
@@ -50,9 +49,9 @@
 
 <script setup>
 import { reactive, computed } from 'vue'
-import UserRegisterService from '../service/register'
-
+import { message } from 'ant-design-vue'
 import { useRouter } from 'vue-router'
+import readerloginService from '../service/readerlogin' // 导入登录服务
 
 const router = useRouter()
 
@@ -64,11 +63,7 @@ const goToResetPassword = () => {
   router.push('/readerresetpassword')
 }
 
-const handleLoginClick = () => {
-  router.push('/option')
-}
-
-const formState = reactive({
+const formState = reactive({//表单
   readerid: '',
   password: '',
 })
@@ -77,18 +72,42 @@ const disabled = computed(() => {
   return !(formState.readerid && formState.password)
 })
 
-const onFinish = (values) => {
-  console.log(values)
-  UserRegisterService(values).then((res) => {
-    if (res.status === 200) {
-      window.location.href = '/'
+const onFinish = async (values) => {
+  console.log('登录表单数据:', values)
+  try {
+    const response = await readerloginService(values.readerid, values.password)
+    if (response.token) {
+      //保存 token 到 localStorage
+      localStorage.setItem('token', response.token)
+      message.success('登录成功！')
+      //跳转到主页面
+      router.push('/readeroption')
+    } else {
+      message.error('登录失败：未获取到令牌')
     }
-  })
+  } catch (error) {
+    console.error('登录出错:', error)
+    message.error('登录失败，请检查读者证号和密码')
+  }
 }
 const onFinishFailed = (errorInfo) => {
   console.log('登录失败:', errorInfo)
+  message.error('请正确填写表单')
 }
 </script>
+
+
+<style scoped>
+.readerrelogin-page {
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 20px;
+}
+
+.login-form-button {
+  width: 100%;
+}
+</style>
 
 <style scoped>
 .login-form {
