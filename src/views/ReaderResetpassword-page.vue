@@ -27,7 +27,7 @@ const switchToLogin = () => {
 </script>
 
 <style scoped>
-.masterresetpassword-page {
+.readerresetpassword-page {
   width: 75%;
 }
 </style>
