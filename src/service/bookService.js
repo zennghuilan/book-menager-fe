@@ -1,12 +1,12 @@
 // 这里是读者
 import axios from "axios"
 
-export const borrowBook = async (bookId, token) => {//将该函数导出，供其他模块使用
+export const borrowBook = async (bookname, token) => {//将该函数导出，供其他模块使用
   try {
     const response = await axios.post(
           "/api/user/borrow_book/",
       {
-        book_id: bookId
+        book_id: bookname
       },
       {
         headers: {
@@ -25,12 +25,12 @@ export const borrowBook = async (bookId, token) => {//将该函数导出，供�
   }
 }
 
-export const returnBook = async (bookId, token) => {
+export const returnBook = async (bookname, token) => {
   try {
       const response = await axios.post(
           "/api/user/return_book/",
       {
-        book_id: bookId
+        book_id: bookname
       },
       {
         headers: {
