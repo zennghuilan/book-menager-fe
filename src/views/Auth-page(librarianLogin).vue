@@ -30,7 +30,6 @@
         html-type="submit"
         :disabled="disabled"
         class="login-form-button"
-        @click="handleLoginClick"
       >
         登录
       </a-button>
@@ -48,8 +47,9 @@
 
 <script setup>
 import { reactive, computed } from 'vue'
-import librarianRegisterService from '@/service/librarianregister'
+import librarianlogin from '@/service/librarianlogin'  // 修正导入
 import { useRouter } from 'vue-router'
+import { message } from 'ant-design-vue'
 
 const router = useRouter()
 
@@ -61,9 +61,6 @@ const goToResetPassword = () => {
   router.push('/librarianresetpassword')
 }
 
-const handleLoginClick = () => {
-  router.push('/librarianoption')
-}
 const formState = reactive({
   librarianid: '',
   password: '',
@@ -75,15 +72,27 @@ const disabled = computed(() => {
 
 const onFinish = async (values) => {
   console.log('登录表单数据:', values)
-  // 调用登录服务
-  const response = await librarianRegisterService(values.librarianid, values.password)
-  // 检查token
-  if (response.token) {
-    //保存 token 到 localStorage
-    localStorage.setItem('token', response.token)
-    //直接跳转到主页面
-    router.push('/librarianoption')
+  try {
+    // 使用正确的函数名和参数名
+    const response = await librarianlogin(values.librarianid, values.password)
+    if (response && response.token) {
+      //保存 token 到 localStorage
+      localStorage.setItem('token', response.token)
+      message.success('登录成功！')
+      //跳转到主页面
+      router.push('/librarianoption')
+    } else {
+      message.error('登录失败：请检查你的账号密码')
+    }
+  } catch (error) {
+    console.error('登录出错:', error)
+    message.error('登录失败，请检查图书管理员证号和密码')
   }
+}
+
+const onFinishFailed = (errorInfo) => {
+  console.log('登录失败:', errorInfo)
+  message.error('请正确填写账号和密码')
 }
 </script>
 
