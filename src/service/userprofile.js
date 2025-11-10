@@ -12,7 +12,7 @@ const userprofile = async (token) => {
     );
 
     if (response.status === 200) {
-      return response.data; // 直接返回图书列表数组？？？为什么不说清楚 
+      return response.data;
     }
   }
   catch (e) {
