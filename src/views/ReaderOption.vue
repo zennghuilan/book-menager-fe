@@ -59,7 +59,7 @@
         </a-list>
       </div>
 
-            <!-- 借阅记录卡片内容 -->
+      <!-- 借阅记录卡片内容 -->
       <div v-else-if="currentPage === 'borrowdata'">
         <h3 :style="{ margin: '16px 0' }">借阅记录查询</h3>
         <a-list size="small" bordered :data-source="borrowData">
@@ -86,23 +86,83 @@
       <!-- 借书功能内容 -->
       <div v-else-if="currentPage === 'borrow'">
         <h2>借书功能</h2>
+        <a-alert
+          v-if="borrowMessage"
+          :message="borrowMessage"
+          :type="borrowMessageType"
+          show-icon
+          style="margin-bottom: 16px"
+        />
         <a-input
-          v-model:value="bookName"
-          placeholder="请输入书名"
+          v-model:value="bookId"
+          placeholder="请输入图书ID (例如: B12345678)"
           style="width: 300px; margin-right: 10px"
         />
-        <a-button type="primary" @click="handleBorrow">借书</a-button>
+        <a-button
+          type="primary"
+          @click="handleBorrow"
+          :loading="borrowLoading"
+          :disabled="!bookId"
+        >
+          借书
+        </a-button>
+
+        <!-- 显示当前借阅的书籍 -->
+        <div v-if="currentBorrowedBooks.length > 0" style="margin-top: 20px">
+          <h3>当前借阅的书籍</h3>
+          <a-list size="small" bordered :data-source="currentBorrowedBooks">
+            <template #renderItem="{ item }">
+              <a-list-item>
+                <div>
+                  <div><strong>图书ID:</strong> {{ item.book_id }}</div>
+                  <div><strong>书名:</strong> {{ item.title }}</div>
+                  <div><strong>借阅日期:</strong> {{ item.borrow_date }}</div>
+                </div>
+              </a-list-item>
+            </template>
+          </a-list>
+        </div>
       </div>
 
       <!-- 还书功能内容 -->
       <div v-else-if="currentPage === 'return'">
         <h2>还书功能</h2>
+        <a-alert
+          v-if="returnMessage"
+          :message="returnMessage"
+          :type="returnMessageType"
+          show-icon
+          style="margin-bottom: 16px"
+        />
         <a-input
-          v-model:value="returnBookName"
-          placeholder="请输入要归还的书名"
+          v-model:value="returnBookId"
+          placeholder="请输入要归还的图书ID"
           style="width: 300px; margin-right: 10px"
         />
-        <a-button type="primary" @click="handleReturn">还书</a-button>
+        <a-button
+          type="primary"
+          @click="handleReturn"
+          :loading="returnLoading"
+          :disabled="!returnBookId"
+        >
+          还书
+        </a-button>
+
+        <!-- 显示可归还的书籍 -->
+        <div v-if="returnableBooks.length > 0" style="margin-top: 20px">
+          <h3>可归还的书籍</h3>
+          <a-list size="small" bordered :data-source="returnableBooks">
+            <template #renderItem="{ item }">
+              <a-list-item>
+                <div>
+                  <div><strong>图书ID:</strong> {{ item.book_id }}</div>
+                  <div><strong>书名:</strong> {{ item.title }}</div>
+                  <div><strong>借阅日期:</strong> {{ item.borrow_date }}</div>
+                </div>
+              </a-list-item>
+            </template>
+          </a-list>
+        </div>
       </div>
 
       <!-- 查询功能内容 -->
@@ -119,11 +179,17 @@
         </div>
 
         <div class="books-grid" style="margin-top: 20px">
-          <a-card v-for="book in searchResults" :key="book.id" class="book-card" style="width: 300px; margin: 10px">
+          <a-card
+            v-for="book in searchResults"
+            :key="book.id"
+            class="book-card"
+            style="width: 300px; margin: 10px"
+          >
             <h3>{{ book.title }}</h3>
             <p class="author">{{ book.author }}</p>
             <p class="reader">{{ book.reader }}</p>
             <p class="location">{{ book.location }}</p>
+            <p class="book-id"><strong>图书ID:</strong> {{ book.id }}</p>
           </a-card>
         </div>
 
@@ -141,17 +207,28 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import router from '@/router';
 import { message } from 'ant-design-vue';
 import search from '../service/search';
 import userprofile from '../service/userprofile';
+import { borrowBook, returnBook } from '../service/bookService';
 
 const selectedKeys = ref(['']);
-const openKeys = ref(['return']);//初始的时候就展开退出登录的情况
+const openKeys = ref(['return']);
 const currentPage = ref('');
-const bookName = ref('');
-const returnBookName = ref('');
+
+// 借书相关变量
+const bookId = ref('');
+const borrowLoading = ref(false);
+const borrowMessage = ref('');
+const borrowMessageType = ref('info');
+
+// 还书相关变量
+const returnBookId = ref('');
+const returnLoading = ref(false);
+const returnMessage = ref('');
+const returnMessageType = ref('info');
 
 // 搜索相关变量
 const searchValue = ref('')
@@ -165,102 +242,154 @@ const userData = ref([])
 // 借阅记录数据
 const borrowData = ref([])
 
+// 计算属性：当前借阅的书籍和可归还的书籍
+const currentBorrowedBooks = computed(() => {
+  return borrowData.value.filter(book => !book.return_date);
+});
+
+const returnableBooks = computed(() => {
+  return currentBorrowedBooks.value;
+});
+
 // 借书功能
-const handleBorrow = () => {
-  if (!bookName.value) {
-    message.warning('请输入书名');
+const handleBorrow = async () => {
+  if (!bookId.value.trim()) {
+    message.warning('请输入图书ID');
     return;
   }
-  message.success(`成功借阅《${bookName.value}》`);
-  bookName.value = ''; // 清空输入框
+
+  borrowLoading.value = true;
+  borrowMessage.value = '';
+
+  try {
+    const response = await borrowBook(bookId.value, token);
+
+    if (response.message === "借书成功") {
+      message.success('借书成功');
+      borrowMessage.value = `成功借阅图书ID: ${bookId.value}`;
+      borrowMessageType.value = 'success';
+      bookId.value = ''; // 清空输入框
+
+      // 刷新借阅记录
+      await refreshBorrowData();
+    } else {
+      throw new Error(response.message || '借书失败');
+    }
+  } catch (error) {
+    console.error('借书出错:', error);
+    const errorMessage = error.response?.data?.message || error.message || '借书失败，请稍后重试';
+    message.error(errorMessage);
+    borrowMessage.value = errorMessage;
+    borrowMessageType.value = 'error';
+  } finally {
+    borrowLoading.value = false;
+  }
 };
 
 // 还书功能
-const handleReturn = () => {
-  if (!returnBookName.value) {
-    message.warning('请输入要归还的书名');
+const handleReturn = async () => {
+  if (!returnBookId.value.trim()) {
+    message.warning('请输入要归还的图书ID');
     return;
   }
-  message.success(`成功归还《${returnBookName.value}》`);
-  returnBookName.value = ''; // 清空输入框
+
+  returnLoading.value = true;
+  returnMessage.value = '';
+
+  try {
+    const response = await returnBook(returnBookId.value, token);
+
+    if (response.message === "还书成功") {
+      message.success('还书成功');
+      returnMessage.value = `成功归还图书ID: ${returnBookId.value}`;
+      returnMessageType.value = 'success';
+      returnBookId.value = ''; // 清空输入框
+
+      // 刷新借阅记录
+      await refreshBorrowData();
+    } else {
+      throw new Error(response.message || '还书失败');
+    }
+  } catch (error) {
+    console.error('还书出错:', error);
+    const errorMessage = error.response?.data?.message || error.message || '还书失败，请稍后重试';
+    message.error(errorMessage);
+    returnMessage.value = errorMessage;
+    returnMessageType.value = 'error';
+  } finally {
+    returnLoading.value = false;
+  }
 };
+
+// 刷新借阅记录数据
+const refreshBorrowData = async () => {
+  try {
+    const result = await userprofile(token);
+    if (result && result.borrowedBooks) {
+      borrowData.value = result.borrowedBooks.map(book => ({
+        book_id: book.book_id,
+        bookname: book.title,
+        borrowday: new Date(book.borrow_date).toLocaleDateString('zh-CN'),
+        author: book.author,
+        location: book.location_index,
+        return_date: book.return_date
+      }));
+    }
+  } catch (e) {
+    console.error('刷新借阅记录失败:', e);
+  }
+};
+
 // 搜索功能
 const onSearch = async (v) => {
-  if (!v.trim()) {//用取反的方式来拿到输入框是否为空的判断
+  if (!v.trim()) {
     message.warning('请输入搜索内容')
     return
   }
-  hasSearched.value = true//用于标记用户是否完成了搜索 如果输入框为空 那么函数就会被return
+  hasSearched.value = true
   try {
-    // 调用搜索API，传递搜索关键词和token
     const results = await search(v, token)
-
-    // 处理搜索结果
-    if (results && results instanceof Array) {//这是找到最简单的判断结果为数组的方法
+    if (results && results instanceof Array) {
       searchResults.value = results
       if (results.length === 0) {
         message.info('未找到相关图书')
       }
     } else {
-      searchResults.value = []//可能在数据的处理的时候会出现报错
+      searchResults.value = []
       message.warning('未找到相关图书')
     }
-  } catch (error) {//
-    console.error('搜索出错:', error)//在控制台
-    message.error('搜索失败，请稍后重试')//在界面
+  } catch (error) {
+    console.error('搜索出错:', error)
+    message.error('搜索失败，请稍后重试')
     searchResults.value = []
   }
 }
-
-
-
 
 const OptionClick = async ({ key }) => {
   if (key === 'borrowdata' || key === 'introduction' || key === 'borrow' || key === 'return' || key === 'sreach') {
     currentPage.value = key;
 
-  if (key === 'introduction') {
-        try {
-          // 修改这一部分
-          const result = await userprofile(token);
-          if (result && result.userInfo) {
-            userData.value = [
-              `读者ID: ${result.userInfo.reader_id}`,
-              `姓名: ${result.userInfo.name}`,
-              `邮箱: ${result.userInfo.email}`
-            ];
-            console.log('获取到的用户信息:', result.userInfo);
-          } else {
-            userData.value = ['获取用户信息失败'];
-          }
-        } catch (e) {
-          console.error('调用用户数据函数失败:', e);
-          userData.value = ['获取用户信息异常'];
-        }
-      }
-
-
-    if (key === 'borrowdata') {
+    if (key === 'introduction') {
       try {
         const result = await userprofile(token);
-        if (result && result.borrowedBooks) {
-          // 将借阅记录转换为适合显示的格式
-          borrowData.value = result.borrowedBooks.map(book => ({
-            bookname: book.title,
-            borrowday: new Date(book.borrow_date).toLocaleDateString('zh-CN'),
-            author: book.author,
-            location: book.location_index
-          }));
-          console.log('获取到的借阅记录:', result.borrowedBooks);
+        if (result && result.userInfo) {
+          userData.value = [
+            `读者ID: ${result.userInfo.reader_id}`,
+            `姓名: ${result.userInfo.name}`,
+            `邮箱: ${result.userInfo.email}`
+          ];
         } else {
-          borrowData.value = [{ bookname: '获取借阅记录失败', borrowday: '' }];
+          userData.value = ['失败'];
         }
       } catch (e) {
-        console.error('调用借阅记录函数失败:', e);
-        borrowData.value = [{ bookname: '获取借阅记录异常', borrowday: '' }];
+        console.error('调用失败:', e);
+        userData.value = ['异常'];
       }
     }
 
+    if (key === 'borrowdata') {
+      await refreshBorrowData();
+    }
 
     // 如果是查询页面，重置搜索状态
     if (key === 'sreach') {
@@ -269,7 +398,6 @@ const OptionClick = async ({ key }) => {
       searchValue.value = '';
     }
   } else if (key === 'auth') {
-    // 只有点击退出登录时才进行路由跳转
     currentPage.value = '';
     router.push('/auth');
   }
