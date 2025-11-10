@@ -11,21 +11,11 @@
       name="username"
       :rules="[{ required: true, message: '请输入用户名' }]"
     >
-      <a-input
-        v-model:value="formState.username"
-        placeholder="请输入用户名"
-      />
+      <a-input v-model:value="formState.username" placeholder="请输入用户名" />
     </a-form-item>
 
-    <a-form-item
-      label="邮箱"
-      name="email"
-      :rules="[{ required: true, message: '请输入邮箱' }]"
-    >
-      <a-input
-        v-model:value="formState.email"
-        placeholder="请输入邮箱"
-      />
+    <a-form-item label="邮箱" name="email" :rules="[{ required: true, message: '请输入邮箱' }]">
+      <a-input v-model:value="formState.email" placeholder="请输入邮箱" />
     </a-form-item>
 
     <a-form-item
@@ -44,65 +34,51 @@
       name="password"
       :rules="[
         { required: true, message: '请输入密码' },
-        { min: 6, message: '密码至少6位' }
+        { min: 6, message: '密码至少6位' },
       ]"
     >
-      <a-input-password
-        v-model:value="formState.password"
-        placeholder="请输入密码"
-      />
+      <a-input-password v-model:value="formState.password" placeholder="请输入密码" />
     </a-form-item>
 
     <a-form-item>
-      <a-button
-        type="primary"
-        html-type="submit"
-        :disabled="disabled"
-        class="register-form-button"
-      >
+      <a-button type="primary" html-type="submit" :disabled="disabled" class="register-form-button">
         注册
       </a-button>
     </a-form-item>
-
-    <a-form-item>
-        <a @click="$router.push('/register')"></a>
-    </a-form-item>
-
-
   </a-form>
 </template>
 
 <script setup>
-import { reactive, computed } from 'vue';
-import UserRegisterService from '../service/register'
+import { reactive, computed } from 'vue'
+import UserRegisterService from '../service/librarianregister'
 
 const formState = reactive({
   username: '',
   email: '',
-  password: ''
-});
+  password: '',
+})
 
 const disabled = computed(() => {
-  return !(formState.username && formState.email && formState.password);
-});
+  return !(formState.username && formState.email && formState.password)
+})
 
 const onFinish = (values) => {
   console.log(values)
-  UserRegisterService(values).then(res => {
+  UserRegisterService(values).then((res) => {
     if (res.status === 200) {
-      window.location.href = "/"
+      window.location.href = '/'
     }
   })
-};
+}
 
 const onFinishFailed = (errorInfo) => {
-  console.log('注册失败:', errorInfo);
-};
+  console.log('注册失败:', errorInfo)
+}
 </script>
 
 <style scoped>
 .register-form {
-  width:75%;
+  width: 75%;
 }
 
 .register-form-button {
