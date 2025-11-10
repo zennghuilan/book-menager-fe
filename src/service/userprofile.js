@@ -12,7 +12,11 @@ const userprofile = async (token) => {
     );
 
     if (response.status === 200) {
-      return response.data;
+      return {
+        userInfo: response.data.user,
+        borrowedBooks: response.data.borrowed_books
+      };
+
     }
   }
   catch (e) {
