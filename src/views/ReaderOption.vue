@@ -59,18 +59,26 @@
         </a-list>
       </div>
 
-      <!-- 借阅记录卡片内容 -->
+            <!-- 借阅记录卡片内容 -->
       <div v-else-if="currentPage === 'borrowdata'">
         <h3 :style="{ margin: '16px 0' }">借阅记录查询</h3>
         <a-list size="small" bordered :data-source="borrowData">
           <template #renderItem="{ item }">
-            <a-list-item>{{ item }}</a-list-item>
+            <a-list-item>
+              <div>
+                <div><strong>书名:</strong> {{ item.bookname }}</div>
+                <div><strong>作者:</strong> {{ item.author }}</div>
+                <div><strong>借阅日期:</strong> {{ item.borrowday }}</div>
+                <div><strong>位置:</strong> {{ item.location }}</div>
+              </div>
+            </a-list-item>
           </template>
           <template #header>
             <div>我的个人借阅记录</div>
           </template>
           <template #footer>
-            <div>记录结束</div>
+            <div v-if="borrowData.length === 0">暂无借阅记录</div>
+            <div v-else>记录结束</div>
           </template>
         </a-list>
       </div>
@@ -137,7 +145,7 @@ import { ref } from 'vue';
 import router from '@/router';
 import { message } from 'ant-design-vue';
 import search from '../service/search';
-import getUserInfo from '../service/userprofile';
+import userprofile from '../service/userprofile';
 
 const selectedKeys = ref(['']);
 const openKeys = ref(['return']);//初始的时候就展开退出登录的情况
@@ -155,16 +163,7 @@ const token = localStorage.getItem('token')
 const userData = ref([])
 
 // 借阅记录数据
-const borrowData = [
-  {
-    "bookname":"《活着》",
-    "borrowday":"11,9"
-  },
-  {
-    "bookname":"《第七天》",
-    "borrowday":"11,8"
-  }
-]
+const borrowData = ref([])
 
 // 借书功能
 const handleBorrow = () => {
@@ -220,25 +219,48 @@ const OptionClick = async ({ key }) => {
   if (key === 'borrowdata' || key === 'introduction' || key === 'borrow' || key === 'return' || key === 'sreach') {
     currentPage.value = key;
 
-    if (key === 'introduction') {
+  if (key === 'introduction') {
+        try {
+          // 修改这一部分
+          const result = await userprofile(token);
+          if (result && result.userInfo) {
+            userData.value = [
+              `读者ID: ${result.userInfo.reader_id}`,
+              `姓名: ${result.userInfo.name}`,
+              `邮箱: ${result.userInfo.email}`
+            ];
+            console.log('获取到的用户信息:', result.userInfo);
+          } else {
+            userData.value = ['获取用户信息失败'];
+          }
+        } catch (e) {
+          console.error('调用用户数据函数失败:', e);
+          userData.value = ['获取用户信息异常'];
+        }
+      }
+
+
+    if (key === 'borrowdata') {
       try {
-        const userInfo = await getUserInfo(token);
-        if (userInfo) {
-          userData.value = [
-            `用户名: ${userInfo.username}`,
-            `读者证号: ${userInfo.readerid}`,
-            `邮箱: ${userInfo.email}`,
-            `密码: ${userInfo.password}`
-          ];
-          console.log('获取到的用户信息:', userInfo);
+        const result = await userprofile(token);
+        if (result && result.borrowedBooks) {
+          // 将借阅记录转换为适合显示的格式
+          borrowData.value = result.borrowedBooks.map(book => ({
+            bookname: book.title,
+            borrowday: new Date(book.borrow_date).toLocaleDateString('zh-CN'),
+            author: book.author,
+            location: book.location_index
+          }));
+          console.log('获取到的借阅记录:', result.borrowedBooks);
         } else {
-          userData.value = ['获取用户信息失败'];
+          borrowData.value = [{ bookname: '获取借阅记录失败', borrowday: '' }];
         }
       } catch (e) {
-        console.error('调用用户数据函数失败:', e);
-        userData.value = ['获取用户信息异常'];
+        console.error('调用借阅记录函数失败:', e);
+        borrowData.value = [{ bookname: '获取借阅记录异常', borrowday: '' }];
       }
     }
+
 
     // 如果是查询页面，重置搜索状态
     if (key === 'sreach') {
