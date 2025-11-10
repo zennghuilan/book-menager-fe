@@ -96,7 +96,6 @@ const onFinishFailed = (errorInfo) => {
 }
 </script>
 
-
 <style scoped>
 .readerrelogin-page {
   max-width: 400px;
