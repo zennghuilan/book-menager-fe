@@ -1,11 +1,11 @@
 import axios from "axios"
 
-const search = async (searchValue, token) => {//用这个异步函数来接收搜索值和 token 作为参数。
+const search_books  = async (search_bookValue, token) => {//用这个异步函数来接收搜索值和 token 作为参数。
   try {
     const query = new URLSearchParams({//
-      searchValue:searchValue,
+      q:search_bookValue,
     })
-    const url = `${import.meta.env.VITE_SERVER_URL}/introduce?${query.toString()}`
+    const url = `${import.meta.env.VITE_SERVER_URL}/api/user/search_books/?${query.toString()}`;
     // get无请求体
     const response = await axios.get(
       url,//后端的接口
@@ -27,4 +27,4 @@ const search = async (searchValue, token) => {//用这个异步函数来接收�
   }
 }
 
-export default search;
+export default search_books;
