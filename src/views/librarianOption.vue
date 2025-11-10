@@ -85,8 +85,8 @@
           <div v-else-if="currentPage === 'freezeAccount'">
             <h2>冻结账户</h2>
             <a-input
-              v-model:value="freezereadername"
-              placeholder="请输入要冻结的用户名"
+              v-model:value="freezereaderId"
+              placeholder="请输入要冻结的用户ID"
               style="width: 300px; margin-right: 10px"
             />
             <a-button type="primary" @click="handleFreeze">冻结账户</a-button>
@@ -104,6 +104,12 @@
             <a-input
               v-model:value="newBookAuthor"
               placeholder="请输入作者"
+              style="width: 300px; margin-right: 10px; margin-bottom: 10px"
+            />
+            <br>
+            <a-input
+              v-model:value="newBooklocation"
+              placeholder="请输入书籍位置索引"
               style="width: 300px; margin-right: 10px; margin-bottom: 10px"
             />
             <br>
@@ -127,10 +133,9 @@
             <a-list size="small" bordered :data-source="auditList">
               <template #renderItem="{ item }">
                 <a-list-item>
-                  {{ item.username }}
-                  {{ item.email }}
-                  <a-button size="small" type="primary" style="margin-left: 10px">通过</a-button>
-                  <a-button size="small" danger style="margin-left: 5px">拒绝</a-button>
+                  {{ item.username }} - {{ item.email }}
+                  <a-button size="small" type="primary" style="margin-left: 10px" @click="handleApprove(item.id)">通过</a-button>
+                  <a-button size="small" danger style="margin-left: 5px" @click="handleReject(item.id)">拒绝</a-button>
                 </a-list-item>
               </template>
               <template #header>
@@ -152,10 +157,18 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import router from '@/router';
 import { message } from 'ant-design-vue';
-import searchUsersService from '../service/searchUsers';
+import searchUsersService from '../service/searchusers';
+import {
+  freezeUser,
+  addBook,
+  deleteBook,
+  getApplications,
+  approveApplication,
+  rejectApplication
+} from '@/service/librarianService';
 
 const selectedKeys2 = ref(['1']);
 const openKeys = ref(['logout']);
@@ -170,19 +183,14 @@ const searchKeyword = ref('')
 const hasSearched = ref(false)
 
 // 输入框数据
-const freezereadername = ref('');
+const freezereaderId = ref('');
 const newBookName = ref('');
 const newBookAuthor = ref('');
 const newBooklocation = ref('')
 const deleteBookName = ref('');
 
 // 审核申请数据
-const auditList = ref([
-  {
-    "username":"zenghuilan",
-    "email":"234808961@qq.com"
-  }
-])
+const auditList = ref([])
 
 // 搜索用户功能
 const searchUsers = async () => {
@@ -215,35 +223,99 @@ const searchUsers = async () => {
 };
 
 // 冻结账户功能
-const handleFreeze = () => {
-  if (!freezereadername.value) {
-    message.warning('请输入要冻结的用户名');
+const handleFreeze = async () => {
+  if (!freezereaderId.value) {
+    message.warning('请输入要冻结的用户ID');
     return;
   }
-  message.success(`已冻结用户: ${freezereadername.value}`);
-  freezereadername.value = ''; // 清空输入框
+
+  try {
+    await freezeUser(freezereaderId.value, token);
+    message.success(`已冻结用户ID: ${freezereaderId.value}`);
+    freezereaderId.value = ''; // 清空输入框
+  } catch (e) {
+    console.error('冻结用户失败:', e);
+    message.error('冻结用户失败');
+  }
 };
 
 // 增加书籍功能
-const handleAddBook = () => {
+const handleAddBook = async () => {
   if (!newBookName.value || !newBookAuthor.value || !newBooklocation.value) {
-    message.warning('请输入书籍名称和作者，索引位置');
+    message.warning('请输入书籍名称、作者和索引位置');
     return;
   }
-  message.success(`成功添加书籍:《${newBookName.value}》作者: ${newBookAuthor.value} 书籍的索引位置:${newBooklocation.value}`);
-  //输入框为空
-  newBookName.value = '';
-  newBookAuthor.value = '';
-  newBooklocation.value = '';
+
+  try {
+    await addBook(newBookName.value, newBookAuthor.value, newBooklocation.value, token);
+    message.success(`成功添加书籍:《${newBookName.value}》作者: ${newBookAuthor.value} 书籍的索引位置:${newBooklocation.value}`);
+    // 清空输入框
+    newBookName.value = '';
+    newBookAuthor.value = '';
+    newBooklocation.value = '';
+  } catch (e) {
+    console.error('添加书籍失败:', e);
+    message.error('添加书籍失败');
+  }
 };
 
-const handleDeleteBook = () => {
+// 删除书籍功能
+const handleDeleteBook = async () => {
   if (!deleteBookName.value) {
     message.warning('请输入要删除的书籍名称');
     return;
   }
-  message.success(`已删除书籍: ${deleteBookName.value}`);
-  deleteBookName.value = ''; // 清空输入框
+
+  try {
+    await deleteBook(deleteBookName.value, token);
+    message.success(`已删除书籍: ${deleteBookName.value}`);
+    deleteBookName.value = ''; // 清空输入框
+  } catch (e) {
+    console.error('删除书籍失败:', e);
+    message.error('删除书籍失败');
+  }
+};
+
+// 加载审核列表
+const loadAuditList = async () => {
+  try {
+    const result = await getApplications(token);
+    if (result && Array.isArray(result)) {
+      auditList.value = result;
+    } else {
+      auditList.value = [];
+    }
+  } catch (e) {
+    console.error('获取审核列表失败:', e);
+    message.error('获取审核列表失败');
+    auditList.value = [];
+  }
+};
+
+// 通过申请
+const handleApprove = async (applicationId) => {
+  try {
+    await approveApplication(applicationId, token);
+    message.success('申请已通过');
+    // 重新加载列表
+    await loadAuditList();
+  } catch (e) {
+    console.error('通过申请失败:', e);
+    message.error('通过申请失败');
+  }
+};
+
+// 拒绝申请
+const handleReject = async (applicationId) => {
+  try {
+    await rejectApplication(applicationId, token);
+    message.success('申请已拒绝');
+    // 重新加载列表
+    await loadAuditList();
+  } catch (e) {
+    console.error('拒绝申请失败:', e);
+    message.error('拒绝申请失败');
+  }
 };
 
 const OptionClick = ({ key }) => {
@@ -252,7 +324,7 @@ const OptionClick = ({ key }) => {
   if (embeddedPages.includes(key)) {
     // 显示对应的卡片内容，不进行路由跳转
     currentPage.value = key;
-    freezereadername.value = '';
+    freezereaderId.value = '';
     newBookName.value = '';
     newBookAuthor.value = '';
     newBooklocation.value ='';
@@ -264,10 +336,20 @@ const OptionClick = ({ key }) => {
       readerList.value = [];
       hasSearched.value = false;
     }
+
+    // 如果是审核列表页面，加载数据
+    if (key === 'auditList') {
+      loadAuditList();
+    }
   } else {
     router.push('/authlibrarian');
   }
 };
+
+// 组件挂载时加载审核列表（如果需要）
+onMounted(() => {
+  // 如果需要默认加载某些数据，可以在这里调用
+});
 </script>
 
 <style scoped>
