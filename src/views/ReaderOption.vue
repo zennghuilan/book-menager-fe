@@ -94,15 +94,15 @@
           style="margin-bottom: 16px"
         />
         <a-input
-          v-model:value="bookId"
-          placeholder="请输入图书ID (例如: B12345678)"
+          v-model:value="bookname"
+          placeholder="请输入图书名称"
           style="width: 300px; margin-right: 10px"
         />
         <a-button
           type="primary"
           @click="handleBorrow"
           :loading="borrowLoading"
-          :disabled="!bookId"
+          :disabled="!bookname"
         >
           借书
         </a-button>
@@ -114,7 +114,7 @@
             <template #renderItem="{ item }">
               <a-list-item>
                 <div>
-                  <div><strong>图书ID:</strong> {{ item.book_id }}</div>
+                  <div><strong>图书名称:</strong> {{ item.book_name }}</div>
                   <div><strong>书名:</strong> {{ item.title }}</div>
                   <div><strong>借阅日期:</strong> {{ item.borrow_date }}</div>
                 </div>
@@ -135,15 +135,15 @@
           style="margin-bottom: 16px"
         />
         <a-input
-          v-model:value="returnBookId"
-          placeholder="请输入要归还的图书ID"
+          v-model:value="returnBookname"
+          placeholder="请输入要归还的图书名称"
           style="width: 300px; margin-right: 10px"
         />
         <a-button
           type="primary"
           @click="handleReturn"
           :loading="returnLoading"
-          :disabled="!returnBookId"
+          :disabled="!returnBookname"
         >
           还书
         </a-button>
@@ -155,7 +155,7 @@
             <template #renderItem="{ item }">
               <a-list-item>
                 <div>
-                  <div><strong>图书ID:</strong> {{ item.book_id }}</div>
+                  <div><strong>图书名称:</strong> {{ item.book_name }}</div>
                   <div><strong>书名:</strong> {{ item.title }}</div>
                   <div><strong>借阅日期:</strong> {{ item.borrow_date }}</div>
                 </div>
@@ -189,7 +189,7 @@
             <p class="author">{{ book.author }}</p>
             <p class="reader">{{ book.reader }}</p>
             <p class="location">{{ book.location }}</p>
-            <p class="book-id"><strong>图书ID:</strong> {{ book.id }}</p>
+            <p class="book-id"><strong>图书名称:</strong> {{ book.name }}</p>
           </a-card>
         </div>
 
@@ -219,13 +219,13 @@ const openKeys = ref(['return']);
 const currentPage = ref('');
 
 // 借书相关变量
-const bookId = ref('');
+const bookname = ref('');
 const borrowLoading = ref(false);
 const borrowMessage = ref('');
 const borrowMessageType = ref('info');
 
 // 还书相关变量
-const returnBookId = ref('');
+const returnBookname = ref('');
 const returnLoading = ref(false);
 const returnMessage = ref('');
 const returnMessageType = ref('info');
@@ -253,8 +253,8 @@ const returnableBooks = computed(() => {
 
 // 借书功能
 const handleBorrow = async () => {
-  if (!bookId.value.trim()) {
-    message.warning('请输入图书ID');
+  if (!bookname.value.trim()) {
+    message.warning('请输入图书名称');
     return;
   }
 
@@ -262,13 +262,13 @@ const handleBorrow = async () => {
   borrowMessage.value = '';
 
   try {
-    const response = await borrowBook(bookId.value, token);
+    const response = await borrowBook(bookname.value, token);
 
     if (response.message === "借书成功") {
       message.success('借书成功');
-      borrowMessage.value = `成功借阅图书ID: ${bookId.value}`;
+      borrowMessage.value = `成功借阅图书名称: ${bookname.value}`;
       borrowMessageType.value = 'success';
-      bookId.value = ''; // 清空输入框
+      bookname.value = ''; // 清空输入框
 
       // 刷新借阅记录
       await refreshBorrowData();
@@ -288,8 +288,8 @@ const handleBorrow = async () => {
 
 // 还书功能
 const handleReturn = async () => {
-  if (!returnBookId.value.trim()) {
-    message.warning('请输入要归还的图书ID');
+  if (!returnBookname.value.trim()) {
+    message.warning('请输入要归还的图书名称');
     return;
   }
 
@@ -297,13 +297,13 @@ const handleReturn = async () => {
   returnMessage.value = '';
 
   try {
-    const response = await returnBook(returnBookId.value, token);
+    const response = await returnBook(returnBookname.value, token);
 
     if (response.message === "还书成功") {
       message.success('还书成功');
-      returnMessage.value = `成功归还图书ID: ${returnBookId.value}`;
+      returnMessage.value = `成功归还图书名称: ${returnBookname.value}`;
       returnMessageType.value = 'success';
-      returnBookId.value = ''; // 清空输入框
+      returnBookname.value = ''; // 清空输入框
 
       // 刷新借阅记录
       await refreshBorrowData();
